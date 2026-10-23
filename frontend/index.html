@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080b14">
+    <title>ShareYou — Send files, simply</title>
+    <script>
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem("shareyou-theme");
+        } catch {
+          theme = null;
+        }
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="ShareYou home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M11 20a7 7 0 0 1 7-7h4" />
+            <path d="M29 20a7 7 0 0 1-7 7h-4" />
+            <path d="m23 9 5 4-5 4M17 23l-5 4 5 4" />
+          </svg>
+        </span>
+        <span>share<span class="brand-you">you</span></span>
+      </a>
+      <div class="header-status" aria-live="polite">
+        <span id="connection-indicator" class="status-dot"></span>
+        <span id="connection-label">Connecting to server</span>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+        </svg>
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20.2 15.3A8.5 8.5 0 0 1 8.7 3.8 8.5 8.5 0 1 0 20.2 15.3Z" />
+        </svg>
+        <span class="theme-label">Theme</span>
+      </button>
+    </header>
+
+    <main class="page-shell">
+      <section class="intro">
+        <div class="eyebrow"><span></span> PRIVATE BY DESIGN · DIRECT BY DEFAULT</div>
+        <h1>Share at the speed<br><span>of being together.</span></h1>
+        <p class="intro-copy">
+          Connect with a short code. Send files and messages directly between
+          your devices, without uploading them to a server.
+        </p>
+      </section>
+
+      <section class="pairing-grid" aria-label="Device pairing">
+        <article class="panel your-device">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">THIS DEVICE</p>
+              <h2>Your share code</h2>
+            </div>
+            <span class="device-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="5" y="2.75" width="14" height="18.5" rx="2.5" />
+                <path d="M10 18h4" />
+              </svg>
+            </span>
+          </div>
+          <p class="panel-description">Share this code with the device you want to connect.</p>
+          <div class="code-display" aria-label="Your share code">
+            <span id="share-code">------</span>
+            <button id="copy-code" class="copy-button" type="button" disabled aria-label="Copy share code">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect x="7" y="6" width="9" height="11" rx="1.5" />
+                <path d="M13 6V4.5A1.5 1.5 0 0 0 11.5 3h-7A1.5 1.5 0 0 0 3 4.5v9A1.5 1.5 0 0 0 4.5 15H7" />
+              </svg>
+              <span id="copy-label">Copy</span>
+            </button>
+          </div>
+          <div class="waiting-note">
+            <span class="pulse-dot"></span>
+            <span id="local-status">Waiting for server connection…</span>
+          </div>
+        </article>
+
+        <article class="panel connect-device">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">PAIR A DEVICE</p>
+              <h2>Have a code?</h2>
+            </div>
+            <span class="device-icon connect-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="8" cy="8" r="3.25" />
+                <circle cx="16.5" cy="15.5" r="3.25" />
+                <path d="m10.5 10.5 4 3.5M14.5 8.5h3v3" />
+              </svg>
+            </span>
+          </div>
+          <p class="panel-description">Enter the six-character code from your other device.</p>
+          <form id="join-form" class="join-form">
+            <label class="visually-hidden" for="peer-code">Other device's share code</label>
+            <input
+              id="peer-code"
+              name="code"
+              type="text"
+              placeholder="e.g. V5SDGY"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="6"
+              pattern="[A-HJ-NP-Z2-9]{6}"
+              aria-describedby="code-help"
+              required
+            >
+            <button id="join-button" class="primary-button" type="submit" disabled>
+              <span>Connect</span>
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10h12m-5-5 5 5-5 5" />
+              </svg>
+            </button>
+          </form>
+          <div class="form-footer">
+            <span id="code-help">Codes use 6 letters and numbers (excluding O, 0, I, 1).</span>
+            <span id="pair-status" class="pair-status" aria-live="polite">Not paired</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="message-panel" aria-labelledby="message-title">
+        <div class="message-heading">
+          <div>
+            <p class="section-kicker">PRIVATE CONVERSATION</p>
+            <h2 id="message-title">Peer-to-peer chat</h2>
+          </div>
+          <span id="data-channel-status" class="channel-status">Waiting for connection</span>
+        </div>
+        <div id="message-list" class="message-list" role="log" aria-live="polite">
+          <p class="empty-messages">Test messages will appear here after the DataChannel opens.</p>
+        </div>
+        <form id="message-form" class="message-form">
+          <label class="visually-hidden" for="test-message">Test message</label>
+          <input
+            id="test-message"
+            name="message"
+            type="text"
+            placeholder="Type a test message…"
+            autocomplete="off"
+            disabled
+          >
+          <button id="send-message" class="primary-button" type="submit" disabled>
+            <span>Send</span>
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M3 10h13m-5-5 5 5-5 5" />
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <section class="transfer-panel" aria-labelledby="transfer-title">
+        <div class="transfer-heading">
+          <div class="transfer-title-wrap">
+            <span class="transfer-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5" />
+                <path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+              </svg>
+            </span>
+            <div>
+              <p class="section-kicker">PEER-TO-PEER TRANSFER</p>
+              <h2 id="transfer-title">Send a file</h2>
+            </div>
+          </div>
+          <span class="coming-soon">DATA CHANNEL</span>
+        </div>
+        <div id="drop-area" class="drop-area">
+          <span class="upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5" />
+              <path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+            </svg>
+          </span>
+          <div class="drop-copy">
+            <strong>Choose a file to share</strong>
+            <span>Files travel directly over the encrypted WebRTC DataChannel, not through the server.</span>
+          </div>
+          <div class="file-actions">
+            <label id="choose-file-label" class="secondary-button" for="file-input">Choose file</label>
+            <input id="file-input" type="file">
+            <button id="send-file" class="primary-button" type="button" disabled>Send file</button>
+          </div>
+        </div>
+        <div id="selected-file" class="file-info" hidden>
+          <div class="file-info-copy">
+            <strong id="selected-file-name"></strong>
+            <span id="selected-file-details"></span>
+          </div>
+          <button id="clear-file" class="text-button" type="button">Remove</button>
+        </div>
+        <div id="outgoing-transfer" class="transfer-progress" hidden>
+          <div class="progress-heading">
+            <div class="file-info-copy">
+              <strong id="outgoing-name"></strong>
+              <span id="outgoing-details"></span>
+            </div>
+            <span id="outgoing-status" class="transfer-state">Waiting</span>
+          </div>
+          <progress id="outgoing-progress" max="100" value="0"></progress>
+          <div class="progress-footer">
+            <span id="outgoing-progress-text">0%</span>
+            <button id="cancel-outgoing" class="text-button danger-text" type="button">Cancel</button>
+          </div>
+        </div>
+        <div id="incoming-transfer" class="incoming-transfer" hidden>
+          <div class="progress-heading">
+            <div class="file-info-copy">
+              <strong id="incoming-name"></strong>
+              <span id="incoming-details"></span>
+            </div>
+            <span id="incoming-status" class="transfer-state">Incoming</span>
+          </div>
+          <div id="incoming-actions" class="incoming-actions">
+            <span class="incoming-prompt">Accept this file to start receiving it.</span>
+            <div>
+              <button id="reject-incoming" class="secondary-button" type="button">Reject</button>
+              <button id="accept-incoming" class="primary-button" type="button">Accept file</button>
+            </div>
+          </div>
+          <div id="incoming-progress-wrap" hidden>
+            <progress id="incoming-progress" max="100" value="0"></progress>
+            <div class="progress-footer">
+              <span id="incoming-progress-text">0%</span>
+              <button id="cancel-incoming" class="text-button danger-text" type="button">Cancel</button>
+            </div>
+          </div>
+          <button id="save-incoming" class="primary-button save-button" type="button" hidden>
+            Save received file
+          </button>
+        </div>
+        <p class="size-note">For this browser-based demo, each transfer is limited to 512 MiB to reduce memory pressure. Browser and device limits may be lower.</p>
+      </section>
+
+      <footer class="page-footer">
+        <div class="footer-brand">
+          <span class="footer-logo" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <path d="M11 20a7 7 0 0 1 7-7h4" />
+              <path d="M29 20a7 7 0 0 1-7 7h-4" />
+              <path d="m23 9 5 4-5 4M17 23l-5 4 5 4" />
+            </svg>
+          </span>
+          <span class="footer-brand-copy">
+            <strong>ShareYou</strong>
+            <span>Simple. Direct. Private.</span>
+          </span>
+        </div>
+        <p class="footer-description">Send files and messages directly between devices.</p>
+        <span class="footer-copyright">© 2026 ShareYou</span>
+      </footer>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
